@@ -1,4 +1,4 @@
-name: jonghyeon
+name: Variables
 on: workflow_dispatch
 jobs:
   print:
