@@ -18,4 +18,4 @@ jobs: # job
           echo "OS: ${{ runner.os }}"
           echo "Architecture: ${{ runner.arch }}"
           echo "Environment: ${{ runner.environment }}"
-	  ehco "Temp: ${{ runner.temp }}"
+	  echo "Temp: ${{ runner.temp }}"
