@@ -1,0 +1,6 @@
+# PDF 7쪽은 파일명만 제시한다. 아래는 공통 환경에 맞춘 최소 설정이다.
+[tool.ruff]
+target-version = "py314"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
