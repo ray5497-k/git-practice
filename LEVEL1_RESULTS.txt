@@ -1,6 +1,6 @@
 Level 1 local verification - Python_CICD.pdf pages 15-19
 Repository: https://github.com/ray5497-k/git-practice
-No new commit, push, or GitHub Actions execution was performed.
+Recorded before the first push. Remote runs are linked in README.md.
 
 1. Intentional pytest failure: expected 10000 -> 10001
 $ python -m pytest -q
@@ -78,4 +78,4 @@ Exit code: 0 (expected: 0)
 Restored SHA256 tests/test_pricing.py: 8f0ea7196aeddd46006e6651851ef1f5bd5d031d5dd90eb44046335309d2baa5
 Restored SHA256 orderlab/pricing.py: 7f3fe4b4a377cff05dfb7ff8861a10c71724e0ed85638aca94ee65db1a6f4275
 
-Local exercise complete. CI workflow commit/push and Actions green result are pending user review.
+End of the Level 1 local test log.

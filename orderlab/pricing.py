@@ -10,6 +10,6 @@ def final_total(price: int, qty: int, discount: int) -> int:
 
     amount = subtotal(price, qty)
     amount -= amount * discount // 100
-    if 0 < amount <= 50_000:
+    if 0 < amount < 50_000:
         amount += 3_000
     return amount

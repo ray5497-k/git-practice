@@ -1,6 +1,6 @@
 # Level 1: 계산 함수, 테스트, Ruff, CI (19쪽까지)
 
-현재 진행 범위는 PDF 15~19쪽이야. 이번 변경은 로컬에만 준비했고 커밋·푸시는 하지 않았어.
+이 문서는 PDF 15~19쪽에서 진행한 첫 실습 기록이야. 전체 실습은 [README](README.md)에 있고, 아래의 함수와 테스트 개수는 Level 1 기준이야.
 추가로 전달받은 수업 조건은 **같은 기능을 유지하면서 테스트를 직접 설계**하는 거야.
 아래 테스트는 PDF의 예제 입력을 그대로 복사하지 않고 구성했어.
 
@@ -26,7 +26,7 @@
 `subtotal(unit_price, quantity)`는 두 값을 받아 곱한 정수를 반환해.
 가격이나 수량 중 하나라도 음수라면 계산 전에 `ValueError`를 발생시켜.
 가격 0은 허용해. `int` 타입 힌트 자체가 실수나 문자열 입력을 막아주는 건 아니야.
-현재 과제에 없는 별도의 타입 검사나 할인 기능은 추가하지 않았어.
+할인 기능은 다음 단계인 Level 2에서 다룬다.
 
 ## 이번 테스트의 설계
 
@@ -147,9 +147,5 @@ CI에서는 `--fix`나 `ruff format .`으로 코드를 자동 수정하지 않�
 | pytest 테스트 세 개 PASS | 완료 | 최종 `3 passed` |
 | Ruff 검사 두 개 PASS | 완료 | lint와 format 모두 종료 코드 0 |
 | 실패 로그 화면 한 번 확인 | 로컬 로그 확인 완료 | `LEVEL1_RESULTS.txt`에 실제 출력 보관 |
-| `ci.yml` Commit 및 Push | 보류 | 사용자가 먼저 변경 내용을 검토하기로 함 |
-| Actions 결과 초록색 | 미확인 | 새 YAML을 아직 Push하지 않았음 |
-
-GitHub에서 새 CI가 실행되면 **Actions → Python CI → 해당 커밋의 실행 → quality → Run unit tests**를 확인하면 돼.
-기존 `Hello`, `Contexts`, `YAML error`의 초록색은 이번 pytest 결과가 아니야.
-현재는 로컬 실습과 CI 파일 준비까지 완료한 상태고, GitHub에서의 최종 완료 조건은 남아 있어.
+| `ci.yml` Commit 및 Push | 완료 | 커밋 `b9404e5` |
+| Actions 결과 초록색 | 통과 | [Python CI 실행](https://github.com/ray5497-k/git-practice/actions/runs/45925633537) |
