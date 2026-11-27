@@ -1,0 +1,81 @@
+Level 1 local verification - Python_CICD.pdf pages 15-19
+Repository: https://github.com/ray5497-k/git-practice
+No new commit, push, or GitHub Actions execution was performed.
+
+1. Intentional pytest failure: expected 10000 -> 10001
+$ python -m pytest -q
+Exit code: 1 (expected: 1)
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+__________________________ test_subtotal_normal_order __________________________
+
+    def test_subtotal_normal_order():
+        unit_price = 2_500
+        quantity = 4
+        expected = 10_001
+    
+        actual = subtotal(unit_price, quantity)
+    
+>       assert actual == expected
+E       assert 10000 == 10001
+
+tests/test_pricing.py:13: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_pricing.py::test_subtotal_normal_order - assert 10000 == 10001
+1 failed, 2 passed in 0.01s
+
+2. Intentional Ruff warning: unused import math
+$ ruff check orderlab/pricing.py
+Exit code: 1 (expected: 1)
+I001 [*] Import block is un-sorted or un-formatted
+ --> orderlab/pricing.py:1:1
+  |
+1 | import math
+  | ^^^^^^^^^^^
+2 |
+3 | def subtotal(unit_price: int, quantity: int) -> int:
+  |
+help: Organize imports
+  |
+2 |
+3 +
+4 | def subtotal(unit_price: int, quantity: int) -> int:
+  |
+
+F401 [*] `math` imported but unused
+ --> orderlab/pricing.py:1:8
+  |
+1 | import math
+  |        ^^^^
+2 |
+3 | def subtotal(unit_price: int, quantity: int) -> int:
+  |
+help: Remove unused import: `math`
+  |
+  - import math
+1 |
+  |
+
+Found 2 errors.
+[*] 2 fixable with `--fix`.
+
+3. Restored code: Ruff lint
+$ ruff check .
+Exit code: 0 (expected: 0)
+All checks passed!
+
+4. Restored code: Ruff format
+$ ruff format --check .
+Exit code: 0 (expected: 0)
+5 files already formatted
+
+5. Restored tests: pytest
+$ python -m pytest -q
+Exit code: 0 (expected: 0)
+...                                                                      [100%]
+3 passed in 0.00s
+
+Restored SHA256 tests/test_pricing.py: 8f0ea7196aeddd46006e6651851ef1f5bd5d031d5dd90eb44046335309d2baa5
+Restored SHA256 orderlab/pricing.py: 7f3fe4b4a377cff05dfb7ff8861a10c71724e0ed85638aca94ee65db1a6f4275
+
+Local exercise complete. CI workflow commit/push and Actions green result are pending user review.
