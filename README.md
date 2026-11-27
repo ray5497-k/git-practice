@@ -1,84 +1,38 @@
-# Git init
+# OrderLab · Python CI/CD 실습
 
-name : ray 
-date : 2026 0911
+주문 금액을 계산하고 CSV에 적힌 매출을 집계했다. 주문 API는 FastAPI로 만들었고, GitHub Pages에는 CSV로 만든 [매출 보고서](https://ray5497-k.github.io/git-practice/)를 올린다.
 
----
+| 단계 | 실습 내용 | 확인한 값 |
+| --- | --- | --- |
+| 1. 소계 | 단가 × 수량 | 2,500원짜리 4개는 10,000원. 0원은 허용하고 음수는 거부한다. |
+| 2. 할인과 배송 | 할인 후 금액으로 배송비 계산 | 49,999원은 52,999원, 50,000원부터 무료 배송이다. 전액 할인은 배송비도 0원이다. |
+| 3. 매출 집계 | CSV에서 단가와 수량을 곱해 합산 | 빈 CSV는 0원이다. 없는 파일과 수량에 글자를 넣은 파일도 따로 테스트했다. |
+| 4. 주문 API | `POST /orders`와 `GET /orders/{id}` | 정상 주문은 201, 조회는 200, 없는 주문은 404, 잘못된 입력은 422다. 응답 JSON도 비교한다. |
+| 5. 보고서 | 샘플 주문 3건으로 HTML 생성 | 3,600 × 4 + 5,900 × 2 + 1,800 × 5 = 35,200원 |
 
-# OrderLab 공통 실행 환경
+## 실행
 
-`Python_CICD.pdf`의 공통 준비 환경과 Level 1의 15~17쪽까지만 구성했어.
-현재 폴더가 프로젝트 루트야. 아래 명령은 전부 여기서 실행하면 돼.
-
-## 맞춰야 하는 조건
-
-- OS: Windows / macOS / Ubuntu
-- Python: 3.14.x
-- 가상환경: `.venv`
-- 패키지: `requirements-dev.txt`에 있는 다섯 개. PDF에 따라 버전 번호는 고정하지 않았어.
-- `.venv/`와 이 컴퓨터에 설치한 Python 경로인 `.python/`는 Git에서 제외해뒀어.
-
-## 이 Mac에서 바로 시작
+Python 3.14 환경에서 저장소 루트를 기준으로 실행한다.
 
 ```bash
-source .venv/bin/activate
-python --version
-python -m pip check
-```
-
-Python 3.14.x가 나오면 돼. 새 터미널을 열 때마다 가상환경을 다시 활성화해.
-
-현재 설치된 버전은 Python 3.14.4, Ruff 0.17.6, pytest 9.2.0,
-pytest-cov 7.1.0, FastAPI 0.165.0, HTTPX 0.28.1이야.
-패키지 목록은 PDF 4쪽의 공통 준비 항목 그대로 유지했어.
-
-## 다른 컴퓨터에서 환경 만들기
-
-Python 3.14를 먼저 설치하고, `python --version`이 3.14.x인지 확인해.
-아래 `python` 명령이 3.14를 가리켜야 해. venv는 실행한 Python으로 만들어지거든.
-
-```bash
-python --version
 python -m venv .venv
-```
-
-macOS / Linux에서는:
-
-```bash
 source .venv/bin/activate
-```
-
-Windows PowerShell에서는:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-활성화한 뒤 설치하면 돼.
-
-```bash
-python --version
 python -m pip install -r requirements-dev.txt
-```
-
-이미 Conda를 쓴다면 PDF 5쪽처럼 venv 대신 선택할 수 있어. 둘을 동시에 활성화하지 마.
-
-## 공통 검사
-
-```bash
 ruff check .
 ruff format --check .
-python -m pytest -q
+python -m pytest -q --cov=orderlab --cov-report=term-missing --cov-report=xml
+python generate_report.py
 ```
 
-Level 1 계산 함수와 정상·0원·음수 수량 테스트 세 개를 작성해뒀어.
-`python -m pytest -q`를 실행하면 `3 passed`가 나와야 해.
-테스트 설계 이유, 파일별 역할과 17쪽까지의 실습 순서는 [LEVEL1.md](LEVEL1.md)에 정리했어.
+Windows PowerShell에서는 가상환경을 `.\.venv\Scripts\Activate.ps1`로 활성화한다. 보고서는 `site/index.html`을 열어 확인한다. API 테스트는 `TestClient`를 쓰므로 서버를 따로 켤 필요가 없다.
 
-## 파일 구조
+## 실패 재현과 수정
 
-- `orderlab/`: 실제 프로그램. `__init__.py`와 Level 1의 `pricing.py`가 있어.
-- `tests/`: Level 1의 `test_pricing.py`가 있어.
-- `pyproject.toml`: Python 3.14 대상 Ruff 설정과 테스트 경로만 지정했어. 이 설정값 자체가 PDF에 제시된 건 아니야.
+- **Level 1.** 테스트의 기댓값을 10,000원에서 10,001원으로 바꿨을 때 pytest가 실패했다. 쓰지 않는 `import math`는 Ruff가 F401로 잡았다. 두 변경을 되돌린 [로컬 출력](LEVEL1_RESULTS.txt)과 [첫 CI 성공 기록](https://github.com/ray5497-k/git-practice/actions/runs/45925633537)을 남겼다.
+- **Level 2.** 배송비 조건을 `0 < amount <= 50_000`으로 쓰자, 정확히 50,000원인 주문에 배송비 3,000원이 붙었다. [PR의 실패 실행](https://github.com/ray5497-k/git-practice/actions/runs/45925729505)에서 실제 53,000원과 기댓값 50,000원의 차이를 볼 수 있다. 조건을 `0 < amount < 50_000`으로 고치고 같은 테스트를 다시 실행했다.
 
-`pricing.py`, 테스트 세 개와 로컬 Ruff 검사까지 진행하는 상태야.
+## CI와 배포
+
+[실습 PR #3](https://github.com/ray5497-k/git-practice/pull/3)에서 커밋별 결과를 확인할 수 있다. Push와 PR에서 Ruff가 통과하면 Ubuntu와 Windows가 각각 같은 테스트를 실행한다. Ubuntu 실행 화면의 Artifacts에서 `coverage-xml`을 내려받으면 `coverage.xml`이 들어 있다.
+
+PR에서는 검사를 통과해도 배포를 건너뛴다. `main`에 병합한 뒤에는 두 OS의 테스트가 모두 성공해야 `deploy`가 시작된다. 이 작업이 샘플 CSV로 HTML을 다시 만들고 Pages에 올린다. [워크플로 설정](.github/workflows/ci.yml) · [실행 기록](https://github.com/ray5497-k/git-practice/actions/workflows/ci.yml?query=branch%3Amain)

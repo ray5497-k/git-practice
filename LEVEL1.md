@@ -1,6 +1,6 @@
-# Level 1: 계산 함수, 테스트, Ruff (17쪽까지)
+# Level 1: 계산 함수, 테스트, Ruff, CI (19쪽까지)
 
-현재 진행 범위는 PDF 15~17쪽이야.
+이 문서는 PDF 15~19쪽에서 진행한 첫 실습 기록이야. 전체 실습은 [README](README.md)에 있고, 아래의 함수와 테스트 개수는 Level 1 기준이야.
 추가로 전달받은 수업 조건은 **같은 기능을 유지하면서 테스트를 직접 설계**하는 거야.
 아래 테스트는 PDF의 예제 입력을 그대로 복사하지 않고 구성했어.
 
@@ -15,6 +15,8 @@
 | `pyproject.toml` | Ruff의 Python 대상 버전, 테스트 경로 설정 | PDF 7쪽은 파일명만 제시. 내용은 이 프로젝트의 최소 설정 |
 | `.gitignore` | 가상환경과 생성 파일을 Git에서 제외 | PDF 4쪽의 `.venv/` 제외 조건 반영 |
 | `.python-version` | 프로젝트 Python 버전 표시 | 환경 준비를 위한 보조 파일 |
+| `.github/workflows/ci.yml` | Push/PR에서 Ruff 검사 두 개와 pytest 실행 | PDF 18쪽 |
+| `LEVEL1_RESULTS.txt` | 실제 실패·복구 출력과 원복 확인 기록 | PDF 19쪽의 실습 확인용 |
 
 `pytest`라는 이름의 새 파일은 만들 필요 없어.
 검사할 코드는 `tests/test_pricing.py`에 넣고, pytest는 터미널 명령으로 실행해.
@@ -24,7 +26,7 @@
 `subtotal(unit_price, quantity)`는 두 값을 받아 곱한 정수를 반환해.
 가격이나 수량 중 하나라도 음수라면 계산 전에 `ValueError`를 발생시켜.
 가격 0은 허용해. `int` 타입 힌트 자체가 실수나 문자열 입력을 막아주는 건 아니야.
-현재 과제에 없는 별도의 타입 검사나 할인 기능은 추가하지 않았어.
+할인 기능은 다음 단계인 Level 2에서 다룬다.
 
 ## 이번 테스트의 설계
 
@@ -98,4 +100,52 @@ ruff format .
 ```
 
 수정 후 위의 검사 세 개를 다시 실행해. 자동 수정이 모든 문제를 해결하는 건 아니니 남은 메시지는 직접 확인해야 해.
-현재 범위는 계산 함수와 테스트 세 개, 로컬 Ruff 검사까지야.
+
+
+## 4. Ruff 경고 유발과 복구 (19쪽)
+
+`orderlab/pricing.py`에 `import math`를 잠시 추가하고 `ruff check orderlab/pricing.py`를 실행했어.
+함수에서 `math`를 쓰지 않으므로 `F401: math imported but unused`가 발생했어.
+이번 로그에는 import 뒤 빈 줄 간격 때문에 `I001`도 함께 나왔어.
+추가했던 import를 지우고 파일을 원래 내용으로 복구했어.
+
+pytest 실패 실습도 실제 파일의 정상 테스트에서 `expected = 10_000`을 `10_001`로 잠시 바꿔 실행했어.
+`assert 10000 == 10001`에서 실패했고 결과는 `1 failed, 2 passed`였어.
+그다음 기댓값을 복구한 결과 `3 passed`를 확인했어.
+두 파일은 실습 전후 SHA-256이 같아서 실패용 변경이 남아 있지 않아.
+
+실제 명령·종료 코드·전체 실패 출력·복구 결과는 [LEVEL1_RESULTS.txt](LEVEL1_RESULTS.txt)에 있어.
+터미널에서 로그를 다시 보려면 프로젝트 루트에서 아래를 실행해.
+
+```bash
+cat LEVEL1_RESULTS.txt
+```
+
+## 5. CI YAML의 동작 (18쪽)
+
+설정 파일은 `.github/workflows/ci.yml`이야. `.git/workflow`가 아니야.
+Push 또는 Pull Request가 발생하면 GitHub의 Ubuntu 실행 환경에서 다음 순서로 진행돼.
+
+1. `Check out code`: 저장소 코드를 가져와.
+2. `Set up Python 3.14`: 로컬과 같은 Python 3.14 계열을 준비해.
+3. `Install dependencies`: `requirements-dev.txt`의 패키지를 설치해.
+4. `Ruff lint`: `ruff check .`로 코드 규칙을 검사해.
+5. `Ruff format`: `ruff format --check .`로 포맷을 검사해.
+6. `Run unit tests`: `python -m pytest -q`로 테스트 세 개를 실행해.
+
+PDF와 같은 실행 조건·Python 버전·검사 명령을 사용했고, 화면에서 각 단계를 알아보기 쉽도록 이름을 붙였어.
+CI에서는 `--fix`나 `ruff format .`으로 코드를 자동 수정하지 않아.
+앞 단계가 실패하면 기본 동작상 다음 단계는 건너뛰므로, pytest 실패까지 보려면 Ruff 검사부터 통과해야 해.
+
+## 6. 19쪽 과제와 완료 조건의 현재 상태
+
+| PDF 항목 | 현재 상태 | 확인 내용 |
+| --- | --- | --- |
+| `subtotal()` 구현 | 완료 | 정상 계산, 0원 허용, 음수 거부 |
+| 정상·0·음수 테스트 세 개 작성 | 완료 | 독립 설계한 정상·0원·음수 수량 테스트 |
+| Ruff 경고와 pytest 실패 각각 유발 | 완료 | 실제 오류 출력 확인 후 원복 |
+| pytest 테스트 세 개 PASS | 완료 | 최종 `3 passed` |
+| Ruff 검사 두 개 PASS | 완료 | lint와 format 모두 종료 코드 0 |
+| 실패 로그 화면 한 번 확인 | 로컬 로그 확인 완료 | `LEVEL1_RESULTS.txt`에 실제 출력 보관 |
+| `ci.yml` Commit 및 Push | 완료 | 커밋 `b9404e5` |
+| Actions 결과 초록색 | 통과 | [Python CI 실행](https://github.com/ray5497-k/git-practice/actions/runs/45925633537) |
